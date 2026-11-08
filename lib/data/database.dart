@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+import 'package:drift/native.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 import 'models/transfer_type.dart';
 import 'daos/accounts_dao.dart';
 import 'daos/transfers_dao.dart';
@@ -35,7 +40,11 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'hawalati_db');
+  static LazyDatabase _openConnection() {
+    return LazyDatabase(() async {
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dbFolder.path, 'hawalati.sqlite'));
+      return NativeDatabase.createInBackground(file);
+    });
   }
 }
