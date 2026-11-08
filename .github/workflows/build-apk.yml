@@ -1,4 +1,4 @@
-name: Build Signed APK
+name: Build APK
 
 on:
   push:
@@ -26,12 +26,10 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # ⬇️⬇️⬇️ الخطوة الجديدة ⬇️⬇️⬇️
       - name: Install ImageMagick
         run: |
           sudo apt-get update
           sudo apt-get install -y imagemagick
-      # ⬆️⬆️⬆️ الخطوة الجديدة ⬆️⬆️⬆️
 
       - name: Generate launcher icon PNGs
         run: |
@@ -45,20 +43,6 @@ jobs:
             cp "android/app/src/main/res/mipmap-${dens}/ic_launcher.png" \
                "android/app/src/main/res/mipmap-${dens}/ic_launcher_round.png"
           done
-          ls -R android/app/src/main/res/mipmap-*
-
-      - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
-
-      - name: Create key.properties
-        run: |
-          cat > android/key.properties <<EOF
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=release.keystore
-          EOF
 
       - name: Install dependencies
         run: flutter pub get
@@ -72,5 +56,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: hawalati-release-apk
+          name: hawalati-apk
           path: build/app/outputs/flutter-apk/app-release.apk
