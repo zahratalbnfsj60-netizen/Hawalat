@@ -26,7 +26,13 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # ⬇️ الخطوة الجديدة: توليد أيقونة التطبيق PNG لكل الكثافات
+      # ⬇️⬇️⬇️ الخطوة الجديدة ⬇️⬇️⬇️
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+      # ⬆️⬆️⬆️ الخطوة الجديدة ⬆️⬆️⬆️
+
       - name: Generate launcher icon PNGs
         run: |
           for pair in "mdpi:48" "hdpi:72" "xhdpi:96" "xxhdpi:144" "xxxhdpi:192"; do
