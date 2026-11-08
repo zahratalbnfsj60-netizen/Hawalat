@@ -1,65 +1,55 @@
-name: Build and Release APK
+name: Build Signed APK
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build_and_release:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java Development Kit
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
+          flutter-version: '3.47.0'
           channel: 'stable'
           cache: true
 
-      - name: Regenerate Platform Files (Fix Android V2 Embedding)
-        run: flutter create . --platforms=android,ios --org com.hawalati --project-name hawalati
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
 
-      - name: Install Dependencies
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.keystore
+          EOF
+
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate Isar Database Files
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build Release APK
         run: flutter build apk --release
 
-      # هذه الخطوة الجديدة ترفع ملف APK صريحاً ومباشرة لتبويب Actions لتتمكن من تحميله فوراً
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: hawalati-apk
+          name: hawalati-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: Generate Release Tag
-        id: tag
-        run: |
-          echo "tag_name=v1.0.$(date +%Y%m%d%H%M)" >> $GITHUB_OUTPUT
-
-      - name: Create Release and Upload APK
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag_name }}
-          name: "حوالاتي - إصدار آلي ${{ steps.tag.outputs.tag_name }}"
-          body: |
-            نسخة تلقائية جديدة لتطبيق "حوالاتي" (Offline-Only).
-            - تم البناء والتحقق تلقائياً عبر GitHub Actions.
-            - جاهز للتحميل والتثبيت المباشر على أندرويد.
-          files: build/app/outputs/flutter-apk/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
