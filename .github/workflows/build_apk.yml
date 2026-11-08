@@ -27,7 +27,6 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # هذا الأمر يحل المشكلة جذرياً: يعيد توليد ملفات أندرويد و iOS بنظام V2 الحديث تلقائياً
       - name: Regenerate Platform Files (Fix Android V2 Embedding)
         run: flutter create . --platforms=android,ios --org com.hawalati --project-name hawalati
 
@@ -39,6 +38,13 @@ jobs:
 
       - name: Build Release APK
         run: flutter build apk --release
+
+      # هذه الخطوة الجديدة ترفع ملف APK صريحاً ومباشرة لتبويب Actions لتتمكن من تحميله فوراً
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hawalati-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Generate Release Tag
         id: tag
