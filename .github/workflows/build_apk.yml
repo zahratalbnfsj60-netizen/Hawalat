@@ -27,21 +27,15 @@ jobs:
           channel: 'stable'
           cache: true
 
+      # هذا الأمر يحل المشكلة جذرياً: يعيد توليد ملفات أندرويد و iOS بنظام V2 الحديث تلقائياً
+      - name: Regenerate Platform Files (Fix Android V2 Embedding)
+        run: flutter create . --platforms=android,ios --org com.hawalati --project-name hawalati
+
       - name: Install Dependencies
         run: flutter pub get
 
       - name: Generate Isar Database Files
         run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      # خطوة إضافية لتحديث وإصلاح تبعيات وأذونات أندرويد تلقائياً لتجاوز مشاكل الـ Embedding
-      - name: Fix Android Embedding V2 & Gradle Setup
-        run: |
-          mkdir -p android/app/src/main/kotlin/com/example/hawalati
-          cat << 'EOF' > android/app/src/main/kotlin/com/example/hawalati/MainActivity.kt
-          package com.example.hawalati
-          import io.flutter.embedding.android.FlutterActivity
-          class MainActivity: FlutterActivity() {}
-          EOF
 
       - name: Build Release APK
         run: flutter build apk --release
