@@ -9,7 +9,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- تفعيل Android Embedding V2 إجبارياً للتعامل مع الحزم الحديثة -->
+        <!-- تفعيل Android Embedding V2 لإلغاء خطأ التوافق مع الحزم الحديثة -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
