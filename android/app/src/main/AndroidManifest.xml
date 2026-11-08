@@ -1,31 +1,56 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
-    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!--
+        تطبيق حوالاتي — أوفلاين بالكامل
+        لا توجد أي أذونات إنترنت (INTERNET) لهذا السبب.
+    -->
 
     <application
         android:label="حوالاتي"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-
-        <!-- تفعيل Android Embedding V2 لإلغاء خطأ التوافق مع الحزم الحديثة -->
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="false"
+        android:allowBackup="true"
+        android:fullBackupContent="true">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
+            <!-- يطبّق شاشة بداية (Splash) سلسة قبل تحميل Flutter -->
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <!-- نقطة إطلاق التطبيق -->
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+            🔑 هذا السطر هو المفتاح: يُخبر النظام باستخدام Flutter v2 embedding.
+            بدونه أو بالقيمة "1" أو بحذفه تمامًا، يفشل البناء على Flutter 3.29+.
+        -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
     </application>
+
+    <!-- دعم حقل "Paste" النصي في القوائم (اختياري، مُستحسن) -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
+
 </manifest>
