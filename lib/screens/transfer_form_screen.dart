@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database.dart';
+import '../data/models/transfer_type.dart';   // ⬅️ السطر الجديد
 import '../providers/database_provider.dart';
 import '../utils/constants.dart';
 
