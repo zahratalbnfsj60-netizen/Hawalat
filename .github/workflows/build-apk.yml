@@ -26,6 +26,21 @@ jobs:
           channel: 'stable'
           cache: true
 
+      # ⬇️ الخطوة الجديدة: توليد أيقونة التطبيق PNG لكل الكثافات
+      - name: Generate launcher icon PNGs
+        run: |
+          for pair in "mdpi:48" "hdpi:72" "xhdpi:96" "xxhdpi:144" "xxxhdpi:192"; do
+            dens="${pair%%:*}"
+            sz="${pair##*:}"
+            mkdir -p "android/app/src/main/res/mipmap-${dens}"
+            convert -size "${sz}x${sz}" xc:'#2E7D6B' \
+              -fill white -draw "circle $((sz/2)),$((sz/2)) $((sz/2)),$((sz/3))" \
+              "android/app/src/main/res/mipmap-${dens}/ic_launcher.png"
+            cp "android/app/src/main/res/mipmap-${dens}/ic_launcher.png" \
+               "android/app/src/main/res/mipmap-${dens}/ic_launcher_round.png"
+          done
+          ls -R android/app/src/main/res/mipmap-*
+
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
