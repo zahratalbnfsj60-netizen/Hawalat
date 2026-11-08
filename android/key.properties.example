@@ -1,4 +1,0 @@
-storePassword=كلمة_مرور_الـkeystore
-keyPassword=كلمة_مرور_المفتاح
-keyAlias=اسم_المفتاح
-storeFile=release.keystore
