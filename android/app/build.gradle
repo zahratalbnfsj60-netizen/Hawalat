@@ -18,13 +18,6 @@ if (flutterVersionCode == null) flutterVersionCode = '1'
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) flutterVersionName = '1.0'
 
-// توقيع الإصدار (يُستخدم في GitHub Actions)
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 android {
     namespace "com.example.hawalati"
     compileSdk 36
@@ -51,20 +44,10 @@ android {
         versionName flutterVersionName
     }
 
-    signingConfigs {
-        release {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-            }
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            // ✅ استخدام توقيع debug — يعمل ويُثبَّت بدون keystore رسمي
+            signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
         }
