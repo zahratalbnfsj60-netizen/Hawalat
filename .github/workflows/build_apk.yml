@@ -1,0 +1,58 @@
+name: Build and Release APK
+
+on:
+  push:
+    branches: [ main ]
+    # يمكنك تفعيل الـ tags بدلاً من الـ push المباشر إذا أردت بناء الإصدارات عند رفع Tag جديد فقط
+    # tags:
+    #   - 'v*'
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # صلاحية ضرورية لإنشاء الـ Releases ورفع الملفات
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java Development Kit
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Generate Isar Database Files
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Generate Release Tag
+        id: tag
+        run: |
+          echo "tag_name=v1.0.$(date +%Y%m%d%H%M)" >> $GITHUB_OUTPUT
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag_name }}
+          name: "حوالاتي - إصدار آلي ${{ steps.tag.outputs.tag_name }}"
+          body: |
+            نسخة تلقائية جديدة لتطبيق "حوالاتي" (Offline-Only).
+            - تم البناء والتحقق تلقائياً عبر GitHub Actions.
+            - جاهز للتحميل والتثبيت المباشر على أندرويد.
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
