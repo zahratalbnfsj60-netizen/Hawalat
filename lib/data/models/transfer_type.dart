@@ -1,0 +1,1 @@
+enum TransferType { received, paid }
