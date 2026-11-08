@@ -3,15 +3,12 @@ name: Build and Release APK
 on:
   push:
     branches: [ main ]
-    # يمكنك تفعيل الـ tags بدلاً من الـ push المباشر إذا أردت بناء الإصدارات عند رفع Tag جديد فقط
-    # tags:
-    #   - 'v*'
 
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # صلاحية ضرورية لإنشاء الـ Releases ورفع الملفات
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -35,6 +32,16 @@ jobs:
 
       - name: Generate Isar Database Files
         run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      # خطوة إضافية لتحديث وإصلاح تبعيات وأذونات أندرويد تلقائياً لتجاوز مشاكل الـ Embedding
+      - name: Fix Android Embedding V2 & Gradle Setup
+        run: |
+          mkdir -p android/app/src/main/kotlin/com/example/hawalati
+          cat << 'EOF' > android/app/src/main/kotlin/com/example/hawalati/MainActivity.kt
+          package com.example.hawalati
+          import io.flutter.embedding.android.FlutterActivity
+          class MainActivity: FlutterActivity() {}
+          EOF
 
       - name: Build Release APK
         run: flutter build apk --release
